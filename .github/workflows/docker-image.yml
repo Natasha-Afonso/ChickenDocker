@@ -27,7 +27,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '*/.csproj'
+        cache-dependency-path: '**/.csproj'
 
     # FIX: Executable steps that use the configured cache layout to validate syntax stability
     - name: Verify Code Formatting
@@ -50,7 +50,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '*/.csproj'
+        cache-dependency-path: '**/.csproj'
 
     - name: Build Application Containers
       run: docker compose build
@@ -69,7 +69,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '*/.csproj'
+        cache-dependency-path: '**/.csproj'
 
     - name: Build and Launch Application Mesh
       run: docker compose up --build -d
