@@ -27,7 +27,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '**/*.csproj'
+        cache-dependency-path: '*/.csproj'
 
     # FIX: Executable steps that use the configured cache layout to validate syntax stability
     - name: Verify Code Formatting
@@ -50,7 +50,7 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '**/*.csproj'
+        cache-dependency-path: '*/.csproj'
 
     - name: Build Application Containers
       run: docker compose build
@@ -69,14 +69,14 @@ jobs:
       with:
         dotnet-version: '10.0.x'
         cache: true
-        cache-dependency-path: '**/*.csproj'
+        cache-dependency-path: '*/.csproj'
 
     - name: Build and Launch Application Mesh
       run: docker compose up --build -d
 
-    - name: Grace Period for Database Boot
-    - run: |
-        echo "Giving Microcrosoft SQL Server 25 seconds to compile table setups..."
+    - name: grace period for container initialization
+      run: |
+        echo "giving microsoft sql server 25 seconds to complete table setups"
         sleep 25
 
     - name: Wait for API Readiness
@@ -109,19 +109,19 @@ jobs:
     - name: Tear Down Application Mesh and Logs
       if: always() # Ensures cleanup runs regardless of test success or failure
       run: |
-      docker compose logs api-service > api-container-debug.log
-      docker compose logs chick-db-service > db-container-debug.log
-      docker compose logs mvc-service > mvc-container-debug.log
-      docker compose down --volumes 
+        docker compose logs api-service > api-container-debug.log
+        docker compose logs chick-db-service > db-container-debug.log
+        docker compose logs mvc-service > mvc-container-debug.log
+        docker compose down --volumes 
 
-  #JOB 4: Automated continuos delivery task gated behind previos validiation approvals
+  # JOB: automated continuous delivery task gated beind previous validation approvals
   cd-deployment:
-    name: Production Deployment
+    name: production cloud deployment
     runs-on: ubuntu-latest
-    needs: integration-testing # Only starts if all previous stages complete successfully
-    if: github.ref == 'refs/heads/main' # Only deploys on pushes to the main branch
-    environment:
-      name: Execute Server Infrastucture Sync
+    needs: integration-testing
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment: Production
+    steps:
+    - name: Execute Server Infrastructure sync
       run: |
-        echo "All automated tests passed cleanly. Initiating production handshake scripts..."
-       
+        echo "all automated tests passed cleanly. Initiating production handshake scripts..."
